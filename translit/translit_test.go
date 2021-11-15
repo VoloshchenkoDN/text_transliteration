@@ -1,101 +1,75 @@
 package translit_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/VoloshchenkoDN/text_transliteration/translit"
 )
 
-func TestTranslate(t *testing.T) {
-	src := "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
-	res := "ABVGDEYoZhZIJKLMNOPRSTUFKhTsChShShchYEJuJa abvgdeyozhzijklmnoprstufkhtschshshchyejuja"
-	test_map := map[string]string{
-		src: res,
-	}
+var (
+	InputText  = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
+	OutputText = "ABVGDEYoZhZIJKLMNOPRSTUFKhTsChShShchYEJuJa abvgdeyozhzijklmnoprstufkhtschshshchyejuja"
+)
 
-	for src, res := range test_map {
-		if translit.RU_EN.Convert(src) != res {
-			t.Errorf("source: %s, result: %s", src, res)
-		}
+type ErrorMessage struct {
+	in, out, res string
+}
+
+func (e *ErrorMessage) Error() string {
+	return fmt.Sprintf("Input text: %s, output text: %s is not equal the func's result: %s", e.in, e.out, e.res)
+
+}
+
+func RunFunc(in, out string, f func(string) string) error {
+	if res := f(in); out != res {
+		return &ErrorMessage{in, out, res}
+	}
+	return nil
+}
+
+func TestTranslate(t *testing.T) {
+	if err := RunFunc(InputText, OutputText, translit.RU_EN.Convert); err != nil {
+		t.Errorf(err.Error())
 	}
 }
 
 func Benchmark_RUENConvertUsingBuilder(b *testing.B) {
-	src := "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
-	res := "ABVGDEYoZhZIJKLMNOPRSTUFKhTsChShShchYEJuJa abvgdeyozhzijklmnoprstufkhtschshshchyejuja"
-	test_map := map[string]string{
-		src: res,
-	}
-
 	for i := 0; i < b.N; i++ {
-		for in, out := range test_map {
-			if res := translit.RU_EN.ConvertUsingBuilder(in); res != out {
-				b.Errorf("input: %s, output: %s, result: %s", in, out, res)
-			}
+		if err := RunFunc(InputText, OutputText, translit.RU_EN.ConvertUsingBuilder); err != nil {
+			b.Errorf(err.Error())
 		}
 	}
 }
 
 func Benchmark_RUENConvertUsingByteSlice(b *testing.B) {
-	src := "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
-	res := "ABVGDEYoZhZIJKLMNOPRSTUFKhTsChShShchYEJuJa abvgdeyozhzijklmnoprstufkhtschshshchyejuja"
-	test_map := map[string]string{
-		src: res,
-	}
-
 	for i := 0; i < b.N; i++ {
-		for in, out := range test_map {
-			if res := translit.RU_EN.ConvertUsingByteSlice(in); res != out {
-				b.Errorf("input: %s, output: %s, result: %s", in, out, res)
-			}
+		if err := RunFunc(InputText, OutputText, translit.RU_EN.ConvertUsingByteSlice); err != nil {
+			b.Errorf(err.Error())
 		}
 	}
 }
 
 func Benchmark_RUENConvert(b *testing.B) {
-	src := "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
-	res := "ABVGDEYoZhZIJKLMNOPRSTUFKhTsChShShchYEJuJa abvgdeyozhzijklmnoprstufkhtschshshchyejuja"
-	test_map := map[string]string{
-		src: res,
-	}
-
 	for i := 0; i < b.N; i++ {
-		for in, out := range test_map {
-			if res := translit.RU_EN.Convert(in); res != out {
-				b.Errorf("input: %s, output: %s, result: %s", in, out, res)
-			}
+		if err := RunFunc(InputText, OutputText, translit.RU_EN.Convert); err != nil {
+			b.Errorf(err.Error())
 		}
 	}
 }
 
 func Benchmark_RUENLowerCharsConvert(b *testing.B) {
-	src := "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
-	res := "ABVGDEYoZhZIJKLMNOPRSTUFKhTsChShShchYEJuJa abvgdeyozhzijklmnoprstufkhtschshshchyejuja"
-	test_map := map[string]string{
-		src: res,
-	}
-
 	for i := 0; i < b.N; i++ {
-		for in, out := range test_map {
-			if res := translit.RU_EN_LowerChars.Convert(in); res != out {
-				b.Errorf("input: %s, output: %s, result: %s", in, out, res)
-			}
+		if err := RunFunc(InputText, OutputText, translit.RU_EN_LowerChars.Convert); err != nil {
+			b.Errorf(err.Error())
 		}
 	}
 }
 
 func Benchmark_CyrillicLatinTranslat(b *testing.B) {
-	src := "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
-	res := "ABVGDEYoZhZIJKLMNOPRSTUFKhTsChShShchYEJuJa abvgdeyozhzijklmnoprstufkhtschshshchyejuja"
-	test_map := map[string]string{
-		src: res,
-	}
-
 	for i := 0; i < b.N; i++ {
-		for in, out := range test_map {
-			if res := translit.CyrillicLatin.Translate(in); res != out {
-				b.Errorf("input: %s, output: %s, result: %s", in, out, res)
-			}
+		if err := RunFunc(InputText, OutputText, translit.CyrillicLatin.Translate); err != nil {
+			b.Errorf(err.Error())
 		}
 	}
 }
